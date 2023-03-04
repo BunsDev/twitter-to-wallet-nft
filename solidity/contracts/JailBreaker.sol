@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
+// @author st4rgard3n, Mr Deadce11, Anirudh Nair
 pragma solidity >=0.8.4 <0.9.0;
 
 import "solmate/tokens/ERC721.sol";
@@ -15,10 +16,13 @@ contract JailBreaker is ERC721, Context {
 
     address authorized;
 
-    constructor() ERC721("", "") {
+    constructor() ERC721("ElonDrop", "FREED") {
+
+        authorized = _msgSender();
 
     }
 
+    // @notice modifier only allows authorized user to call function
     modifier onlyOwner {
         require(_msgSender() == authorized, "Only owner!");
         _;
@@ -51,12 +55,18 @@ contract JailBreaker is ERC721, Context {
         return ownerOf(tokenId) != address(0);
     }
 
+    // @notice change the base token URI
     function setBaseURI(string memory newBaseURI) public onlyOwner {
         baseURI = newBaseURI;
     }
 
+    // @notice get the base token URI
     function _baseURI() internal view returns (string memory) {
         return baseURI;
+    }
+
+    function setOwner(address newOwner) public onlyOwner {
+        authorized = newOwner;
     }
 
 }
