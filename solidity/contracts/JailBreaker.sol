@@ -21,6 +21,8 @@ contract JailBreaker is ERC721, Context {
   // @notice maps the liberateTokenId => lensProfileId, non-zero value means the liberate token is locked to the lens profile.
   mapping(uint256 => uint256) public lockedId;
 
+  event TokenMinted(uint256 tokenId, bytes32 handleHash);
+
   constructor() ERC721('ElonDrop', 'FREED') {
     authorized = _msgSender();
   }
