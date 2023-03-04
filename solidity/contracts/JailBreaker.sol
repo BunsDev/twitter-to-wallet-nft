@@ -18,6 +18,9 @@ contract JailBreaker is ERC721, Context {
 
   address public lensHubAddress;
 
+  uint256 totalSupply = 1;
+
+  mapping(bytes32 => uint256) hashHandles;
   // @notice maps the liberateTokenId => lensProfileId, non-zero value means the liberate token is locked to the lens profile.
   mapping(uint256 => uint256) public lockedId;
 
@@ -67,6 +70,22 @@ contract JailBreaker is ERC721, Context {
 
   function setOwner(address newOwner) public onlyOwner {
     authorized = newOwner;
+  }
+
+  function getTotalSupply() public view returns (uint256) {
+    return totalSupply - 1;
+  }
+
+  function mint(string memory handleString, address user) public onlyOwner {
+    bytes32 hashHandle = keccak256(abi.encodePacked(handleString));
+
+    require(hashHandles[hashHandle] == 0, 'Profile already exists');
+
+    hashHandles[hashHandle] = totalSupply;
+
+    _mint(user, totalSupply);
+
+    totalSupply += 1;
   }
 
   function transferFrom(address from, address to, uint256 id) public override onlyOwner {
