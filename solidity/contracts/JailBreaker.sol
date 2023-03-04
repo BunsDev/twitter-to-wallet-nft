@@ -34,9 +34,9 @@ contract JailBreaker is ERC721, Context {
 
         require(_exists(tokenId), "Token must exist!");
 
-        string memory baseURI = _baseURI();
+        string memory currentBaseURI = _baseURI();
 
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(currentBaseURI, tokenId.toString())) : "";
     }
 
     /**
@@ -51,11 +51,11 @@ contract JailBreaker is ERC721, Context {
         return ownerOf(tokenId) != address(0);
     }
 
-    function setBaseURI(string memory newBaseURI) onlyOwner {
+    function setBaseURI(string memory newBaseURI) public onlyOwner {
         baseURI = newBaseURI;
     }
 
-    function _baseURI() returns (string memory) {
+    function _baseURI() internal view returns (string memory) {
         return baseURI;
     }
 
