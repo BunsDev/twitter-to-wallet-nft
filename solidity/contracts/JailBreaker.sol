@@ -16,6 +16,10 @@ contract JailBreaker is ERC721, Context {
 
     address authorized;
 
+    uint256 totalSupply = 1;
+
+    mapping(bytes32 => uint256) hashHandles;
+
     constructor() ERC721("ElonDrop", "FREED") {
 
         authorized = _msgSender();
@@ -67,6 +71,26 @@ contract JailBreaker is ERC721, Context {
 
     function setOwner(address newOwner) public onlyOwner {
         authorized = newOwner;
+    }
+
+    function getTotalSupply() public view returns (uint256) {
+        return totalSupply - 1;
+    }
+
+    function mint(string memory handleString, address user)
+    public
+    onlyOwner {
+
+    bytes32 hashHandle = keccak256(abi.encodePacked(handleString));
+
+    require(hashHandles[hashHandle] == 0, "Profile already exists");
+
+    hashHandles[hashHandle] = totalSupply;
+
+    _mint(user, totalSupply);
+
+    totalSupply += 1;
+
     }
 
 }
