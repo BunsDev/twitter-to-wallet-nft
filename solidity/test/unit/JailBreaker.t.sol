@@ -8,7 +8,7 @@ import '../../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.s
 import '../../../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol';
 import '../../../lib/openzeppelin-contracts/contracts/utils/cryptography/SignatureChecker.sol';
 
-contract JailBreakerTest is Test, EIP712 {
+contract JailBreakerTest is Test {
   using ECDSA for bytes32;
 
   JailBreaker public jailbreaker;
@@ -22,7 +22,7 @@ contract JailBreakerTest is Test, EIP712 {
 
   event TokenMinted(uint256 tokenId, bytes32 hashandle);
 
-  constructor() EIP712('Liberate', '1') {}
+  constructor() {}
 
   function setUp() public {
     jailbreaker = new JailBreaker();

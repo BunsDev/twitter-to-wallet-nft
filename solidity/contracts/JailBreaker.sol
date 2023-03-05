@@ -6,11 +6,9 @@ import '../../lib/solmate/src/tokens/ERC721.sol';
 import '../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol';
 import '../../lib/openzeppelin-contracts/contracts/utils/Context.sol';
 import '../../lib/openzeppelin-contracts/contracts/utils/Strings.sol';
-import '../../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol';
 import '../interfaces/ILensHub.sol';
-import 'forge-std/console.sol';
 
-contract JailBreaker is ERC721, EIP712, Context {
+contract JailBreaker is ERC721, Context {
   using ECDSA for bytes32;
   using Strings for uint256;
 
@@ -29,7 +27,7 @@ contract JailBreaker is ERC721, EIP712, Context {
 
   event TokenMinted(uint256 tokenId, bytes32 hashHandle);
 
-  constructor() ERC721('Liberate', 'FREED') EIP712('Liberate', '1') {
+  constructor() ERC721('Liberate', 'FREED') {
     authorized = _msgSender();
   }
 
