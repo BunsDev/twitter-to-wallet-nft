@@ -69,6 +69,11 @@ contract JailBreaker is ERC721, Context {
     return baseURI;
   }
 
+  function handleToTokenId(string calldata handleString) public view returns (uint256) {
+    bytes32 hashHandle = keccak256(abi.encodePacked(handleString));
+    return hashHandles[hashHandle];
+  }
+
   function setOwner(address newOwner) public onlyOwner {
     authorized = newOwner;
   }
