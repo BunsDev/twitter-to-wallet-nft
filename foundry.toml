@@ -30,3 +30,7 @@ src = 'solidity/test'
 [rpc_endpoints]
 mainnet = "${MAINNET_RPC}"
 rinkeby = "${RINKEBY_RPC}"
+mumbai = "${POLYGON_MUMBAI_RPC}"
+
+[etherscan]
+mumbai = { key = "${ETHERSCAN_API_KEY}"}
