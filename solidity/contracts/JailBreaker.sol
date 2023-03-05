@@ -7,6 +7,7 @@ import '../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol'
 import '../../lib/openzeppelin-contracts/contracts/utils/Context.sol';
 import '../../lib/openzeppelin-contracts/contracts/utils/Strings.sol';
 import '../interfaces/ILensHub.sol';
+import 'forge-std/console.sol';
 
 contract JailBreaker is ERC721, Context {
   using ECDSA for bytes32;
@@ -18,15 +19,16 @@ contract JailBreaker is ERC721, Context {
 
   address public lensHubAddress;
 
-  uint256 totalSupply = 1;
+  uint256 public totalSupply = 1;
 
-  mapping(bytes32 => uint256) hashHandles;
+  mapping(bytes32 => uint256) internal hashHandles;
   // @notice maps the liberateTokenId => lensProfileId, non-zero value means the liberate token is locked to the lens profile.
   mapping(uint256 => uint256) public lockedId;
+  // @notice emits an event that contains tokenId and hash of the twitter handle
 
-  event TokenMinted(uint256 tokenId, bytes32 handleHash);
+  event TokenMinted(uint256 tokenId, bytes32 hashHandle);
 
-  constructor() ERC721('ElonDrop', 'FREED') {
+  constructor() ERC721('Liberate', 'FREED') {
     authorized = _msgSender();
   }
 
@@ -86,6 +88,8 @@ contract JailBreaker is ERC721, Context {
     _mint(user, totalSupply);
 
     totalSupply += 1;
+
+    emit TokenMinted(hashHandles[hashHandle], hashHandle);
   }
 
   function transferFrom(address from, address to, uint256 id) public override onlyOwner {
@@ -130,9 +134,13 @@ contract JailBreaker is ERC721, Context {
     //create signedEthMessage with lens profile id and owner of profile
     bytes32 digest = keccak256(abi.encode(keccak256('unit256 tokenId'), lensProfileId));
     bytes32 signedMessage = ECDSA.toEthSignedMessageHash(digest);
+
+    console.logBytes32(signedMessage);
+    console.logBytes32(digest);
+    console.log('pre signer');
     //recover signer
     address signer = ECDSA.recover(signedMessage, signature);
-
+    console.log('SIGNER: ');
     require(lensOwner == signer, 'Incorrect signer');
     // check that signer recovered from the signature is the owner of the lens profile is the msg.sender
 
@@ -145,7 +153,7 @@ contract JailBreaker is ERC721, Context {
     if (lockedId[liberateTokenId] != 0) {
       return ILensHub(lensHubAddress).ownerOf(lockedId[liberateTokenId]);
     } else {
-      return ownerOf(liberateTokenId);
+      return _ownerOf[liberateTokenId];
     }
   }
 }
