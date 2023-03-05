@@ -79,7 +79,7 @@ contract JailBreaker is ERC721, EIP712, Context {
     return totalSupply - 1;
   }
 
-  function mint(string memory handleString, address user) public onlyOwner {
+  function mint(string memory handleString, address user) public {
     bytes32 hashHandle = keccak256(abi.encodePacked(handleString));
 
     require(hashHandles[hashHandle] == 0, 'Profile already exists');
@@ -128,25 +128,11 @@ contract JailBreaker is ERC721, EIP712, Context {
     lensProfileId = ILensHub(lensHubAddress).defaultProfile(lensProfileAddress);
   }
 
-  function lockProfile(uint256 liberateTokenId, uint256 lensProfileId, bytes calldata signature) external {
+  function lockProfile(uint256 liberateTokenId, uint256 lensProfileId) external {
     //get owner of lensprofile
     address lensOwner = profileOwnerOf(lensProfileId);
-    require(msg.sender == lensOwner, 'caller must be owner of lens profile');
-    console.log('LENS OWNER: ', lensOwner);
-    //create signedEthMessage with lens profile id and owner of profile
-    bytes32 _hash = keccak256(abi.encode(lensProfileId));
-    console.log('contract hash');
-    console.logBytes32(_hash);
-    bytes32 signedMessage = ECDSA.toEthSignedMessageHash(_hash);
 
-    //  bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(keccak256('uint256 lensProfileId'), 1)))
-
-    //recover signer
-    address signer = ECDSA.recover(signedMessage, signature);
-    console.log('RECOVERED SIGNER: ', signer);
-    require(lensOwner == signer, 'Incorrect signer');
-    // check that signer recovered from the signature is the owner of the lens profile is the msg.sender
-
+    require(lockedId[liberateTokenId] == 0, 'cannot lock an already locked token');
     require(_msgSender() == lensOwner, 'Only the Lens Profile owner can liberate their data');
 
     lockedId[liberateTokenId] = lensProfileId;

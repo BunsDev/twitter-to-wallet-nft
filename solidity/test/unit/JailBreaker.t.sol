@@ -41,17 +41,10 @@ contract JailBreakerTest is Test, EIP712 {
     jailbreaker.mint('@testHandle', user);
     vm.mockCall(address(lenshub), abi.encodeWithSelector(ilenshub.ownerOf.selector), abi.encode(address(user)));
     assertEq(jailbreaker.profileOwnerOf(1), address(user));
-    //create signedEthMessage with lens profile id and owner of profile
 
-    bytes32 _hash = keccak256(abi.encode(1));
-    console.log('test hash');
-    (uint8 v, bytes32 r, bytes32 s) = vm.sign(userPrivateKey, _hash);
-    //create signatur from r,s,v
-    bytes memory signature = abi.encodePacked(r, s, v);
     vm.prank(user);
-    console.log('USER :', user);
 
-    jailbreaker.lockProfile(1, 1, signature);
+    jailbreaker.lockProfile(1, 1);
   }
 
   function testOwnerOf() public {
