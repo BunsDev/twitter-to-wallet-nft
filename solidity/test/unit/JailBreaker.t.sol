@@ -42,9 +42,10 @@ contract JailBreakerTest is Test, EIP712 {
     vm.mockCall(address(lenshub), abi.encodeWithSelector(ilenshub.ownerOf.selector), abi.encode(address(user)));
     assertEq(jailbreaker.profileOwnerOf(1), address(user));
     //create signedEthMessage with lens profile id and owner of profile
-    bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(keccak256('uint256 lensProfileId'), 1)));
 
-    (uint8 v, bytes32 r, bytes32 s) = vm.sign(userPrivateKey, digest);
+    bytes32 _hash = keccak256(abi.encode(1));
+    console.log('test hash');
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(userPrivateKey, _hash);
     //create signatur from r,s,v
     bytes memory signature = abi.encodePacked(r, s, v);
     vm.prank(user);
