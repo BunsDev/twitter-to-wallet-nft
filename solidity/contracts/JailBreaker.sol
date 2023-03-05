@@ -6,10 +6,11 @@ import '../../lib/solmate/src/tokens/ERC721.sol';
 import '../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol';
 import '../../lib/openzeppelin-contracts/contracts/utils/Context.sol';
 import '../../lib/openzeppelin-contracts/contracts/utils/Strings.sol';
+import '../../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol';
 import '../interfaces/ILensHub.sol';
 import 'forge-std/console.sol';
 
-contract JailBreaker is ERC721, Context {
+contract JailBreaker is ERC721, EIP712, Context {
   using ECDSA for bytes32;
   using Strings for uint256;
 
@@ -28,7 +29,7 @@ contract JailBreaker is ERC721, Context {
 
   event TokenMinted(uint256 tokenId, bytes32 hashHandle);
 
-  constructor() ERC721('Liberate', 'FREED') {
+  constructor() ERC721('Liberate', 'FREED') EIP712('Liberate', '1') {
     authorized = _msgSender();
   }
 
@@ -130,17 +131,17 @@ contract JailBreaker is ERC721, Context {
   function lockProfile(uint256 liberateTokenId, uint256 lensProfileId, bytes calldata signature) external {
     //get owner of lensprofile
     address lensOwner = profileOwnerOf(lensProfileId);
-
+    console.log('LENS OWNER: ', lensOwner);
     //create signedEthMessage with lens profile id and owner of profile
-    bytes32 digest = keccak256(abi.encode(keccak256('unit256 tokenId'), lensProfileId));
-    bytes32 signedMessage = ECDSA.toEthSignedMessageHash(digest);
+    bytes32 _hash = keccak256(abi.encode(keccak256('uint256 lensProfileId'), lensProfileId));
 
-    console.logBytes32(signedMessage);
-    console.logBytes32(digest);
-    console.log('pre signer');
+    // bytes32 signedMessage = ECDSA.toEthSignedMessageHash(digest);
+    bytes32 digest = _hashTypedDataV4(_hash);
+    //  bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(keccak256('uint256 lensProfileId'), 1)))
+
     //recover signer
-    address signer = ECDSA.recover(signedMessage, signature);
-    console.log('SIGNER: ');
+    address signer = ECDSA.recover(digest, signature);
+    console.log('RECOVERED SIGNER: ', signer);
     require(lensOwner == signer, 'Incorrect signer');
     // check that signer recovered from the signature is the owner of the lens profile is the msg.sender
 

@@ -5,9 +5,12 @@ import 'forge-std/Test.sol';
 import '../../contracts/JailBreaker.sol';
 import '../../interfaces/ILensHub.sol';
 import '../../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol';
+import '../../../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol';
 import '../../../lib/openzeppelin-contracts/contracts/utils/cryptography/SignatureChecker.sol';
 
-contract JailBreakerTest is Test {
+contract JailBreakerTest is Test, EIP712 {
+  using ECDSA for bytes32;
+
   JailBreaker public jailbreaker;
   address public owner;
   address public user;
@@ -18,6 +21,8 @@ contract JailBreakerTest is Test {
   uint256 public userPrivateKey = 0x05e8c41d4470d512ed2fe0352400318b0e819550af8773e613f560d46c640b90;
 
   event TokenMinted(uint256 tokenId, bytes32 hashandle);
+
+  constructor() EIP712('Liberate', '1') {}
 
   function setUp() public {
     jailbreaker = new JailBreaker();
@@ -37,14 +42,14 @@ contract JailBreakerTest is Test {
     vm.mockCall(address(lenshub), abi.encodeWithSelector(ilenshub.ownerOf.selector), abi.encode(address(user)));
     assertEq(jailbreaker.profileOwnerOf(1), address(user));
     //create signedEthMessage with lens profile id and owner of profile
-    bytes32 hash = keccak256(abi.encode(keccak256('unit256 tokenId'), 1));
-    (uint8 v, bytes32 r, bytes32 s) = vm.sign(userPrivateKey, hash);
-    console.logUint(v);
-    console.logBytes32(r);
-    console.logBytes32(s);
-    bytes memory signature = bytes.concat(abi.encodePacked(v), r, s);
-    console.logBytes(signature);
+    bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(keccak256('uint256 lensProfileId'), 1)));
+
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(userPrivateKey, digest);
+    //create signatur from r,s,v
+    bytes memory signature = abi.encodePacked(r, s, v);
     vm.prank(user);
+    console.log('USER :', user);
+
     jailbreaker.lockProfile(1, 1, signature);
   }
 
